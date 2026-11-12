@@ -7,9 +7,10 @@ import { notFound } from "next/navigation";
 import Tracker from "@/components/Tracker";
 import { CATEGORIES, getCategory, getItemsByCategory } from "@/data/gta6Data";
 
-// Only the slugs in CATEGORIES exist. Anything else (/banana) is a real 404
-// instead of an empty page Google might index.
-export const dynamicParams = false;
+// Note: there's no `export const dynamicParams = false` here. This project has
+// Cache Components turned on (next.config.mjs), and that mode doesn't allow route
+// config exports. Unknown slugs like /banana still get a real 404, because
+// getCategory() returns null and the page calls notFound() below.
 
 // Tells Next which pages to build ahead of time, so they're served as static HTML (fast + crawlable).
 export function generateStaticParams() {
