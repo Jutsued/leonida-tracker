@@ -1,26 +1,103 @@
+/* app/globals.css */
+/* Tailwind v4 (the create-next-app default): config lives in CSS, no tailwind.config.js. */
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/*
+  Design tokens. Defining the palette here means classes read like
+  `bg-panel border-line text-ash` instead of hex codes sprinkled everywhere,
+  and a color tweak happens in one place.
 
+  `inline` makes Tailwind resolve the font variables (set by next/font on <html>)
+  at the point of use, which is required because those variables don't exist
+  until layout.js adds the font classes.
+*/
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-carbon: #0c0d10; /* page background */
+  --color-panel: #14161b; /* raised flat surfaces */
+  --color-line: #262932; /* 1px hairline borders */
+  --color-bone: #f3f2ee; /* primary text */
+  --color-ash: #8e93a2; /* secondary text */
+  --color-coral: #e85d4a; /* accent: active filters, LIVE */
+  --color-teal: #2dd4bf; /* accent: progress, checked, focus */
+
+  --font-display: var(--font-barlow);
+  --font-sans: var(--font-dm-sans);
+  --font-mono: var(--font-jetbrains);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+html {
+  color-scheme: dark;
+  /* Stops iOS from inflating text in landscape and breaking the column grid. */
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Matte text selection in the accent color instead of the browser's blue. */
+::selection {
+  background: #2dd4bf;
+  color: #0c0d10;
+}
+
+/*
+  Icons use a 24-unit viewBox but render at 14-20px. Without this, a 1.5 stroke
+  would shrink to ~1px at small sizes. non-scaling-stroke keeps every icon at a
+  true 1.5px line no matter how big it's drawn.
+*/
+.icon * {
+  vector-effect: non-scaling-stroke;
+}
+
+/* ---- Checkbox tick: draws itself in like a pen stroke --------------------- */
+@keyframes check-draw {
+  from {
+    stroke-dashoffset: 18;
+  }
+  to {
+    stroke-dashoffset: 0;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+.check-path {
+  stroke-dasharray: 18;
+  stroke-dashoffset: 18;
+  animation: check-draw 160ms ease-out forwards;
+}
+
+/* ---- LIVE indicator: a hard on/off blink, like a tape-deck record light ---- */
+@keyframes live-blink {
+  0%,
+  60% {
+    opacity: 1;
+  }
+  61%,
+  100% {
+    opacity: 0.2;
+  }
+}
+
+.live-dot {
+  animation: live-blink 1.2s steps(1, end) infinite;
+}
+
+/* Hide the scrollbar on the horizontally scrolling region pills (mobile) but keep it scrollable. */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Respect users who turn off animations at the OS level. */
+@media (prefers-reduced-motion: reduce) {
+  .check-path {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+  .live-dot {
+    animation: none;
+  }
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+  }
 }

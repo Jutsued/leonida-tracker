@@ -1,69 +1,69 @@
-import Image from "next/image";
+// app/page.js
+// Home dashboard. A server component on purpose: the h1, intro, and JSON-LD
+// below are plain HTML that Google reads immediately. Only <Tracker /> runs in
+// the browser, because it needs localStorage.
 
-export default function Home() {
+import Tracker from "@/components/Tracker";
+import { CATEGORIES, ITEMS, REGIONS } from "@/data/gta6Data";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
+
+export const metadata = {
+  // `absolute` skips the "| Leonida Tracker" template; the brand is already in this title.
+  title: { absolute: `GTA 6 100% Completion Checklist & Tracker | ${SITE_NAME}` },
+  description: SITE_DESCRIPTION,
+  alternates: { canonical: "/" },
+  openGraph: {
+    url: "/",
+    title: `GTA 6 100% Completion Checklist & Tracker | ${SITE_NAME}`,
+    description: SITE_DESCRIPTION,
+  },
+};
+
+// Structured data so search engines understand this is a site with a search box.
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: SITE_NAME,
+  url: SITE_URL,
+  description: SITE_DESCRIPTION,
+};
+
+export default function HomePage() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.js
-            </code>{" "}
-            file.
+    <>
+      <script
+        type="application/ld+json"
+        // Escaping "<" stops any data string from ever closing the <script> tag early.
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
+      />
+
+      {/* A compact title block, not a marketing hero. The tracker sits right below it,
+          so stats, search, and the first checkboxes are visible without scrolling. */}
+      <div className="mb-4 flex flex-wrap items-end justify-between gap-x-6 gap-y-2">
+        <div>
+          <h1 className="font-display text-[28px] font-bold uppercase leading-none tracking-[0.03em] sm:text-[34px]">
+            GTA 6 Completion Checklist
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="mt-2 max-w-[60ch] text-sm text-ash">
+            Every mission, collectible, stunt jump, vehicle, and property across Leonida. Tick entries off as you
+            play; progress saves in this browser.
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+        <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-ash tabular-nums">
+          {REGIONS.length} regions · {CATEGORIES.length} categories · {ITEMS.length} entries
+        </p>
+      </div>
+
+      {/* Honest pre-launch notice: most entries are placeholders until the game ships. */}
+      <p className="mb-4 flex items-start gap-2 border-l-2 border-coral bg-panel px-3 py-2 text-[13px] leading-snug text-ash">
+        <span className="font-mono text-[11px] uppercase tracking-[0.1em] text-coral">Pre-launch</span>
+        <span>
+          Regions are confirmed by Rockstar. Entries tagged <span className="font-mono text-bone">TBC</span> are
+          placeholders and will be replaced with verified data after November 19.
+        </span>
+      </p>
+
+      <Tracker />
+    </>
   );
 }
