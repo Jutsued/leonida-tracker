@@ -113,6 +113,28 @@ export default function RootLayout({ children }) {
 
         <footer className="border-t border-line">
           <div className="mx-auto max-w-[1280px] px-4 py-6 text-xs leading-relaxed text-ash">
+            {/* Plain crawlable links: AdSense reviewers and Google both look for About and
+                Privacy pages reachable from every page, and the footer is where they check. */}
+            <nav aria-label="Site information" className="mb-4">
+              <ul className="flex flex-wrap gap-x-5 gap-y-2 font-display text-[13px] font-semibold uppercase tracking-[0.1em]">
+                <li>
+                  <Link
+                    href="/about"
+                    className="rounded-[2px] text-ash transition-colors hover:text-bone focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
+                  >
+                    About
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/privacy-policy"
+                    className="rounded-[2px] text-ash transition-colors hover:text-bone focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
+                  >
+                    Privacy Policy
+                  </Link>
+                </li>
+              </ul>
+            </nav>
             <p>
               {SITE_NAME} is an unofficial fan project and is not affiliated with or endorsed by Rockstar
               Games or Take-Two Interactive. Grand Theft Auto and related names are trademarks of their

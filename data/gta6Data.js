@@ -89,6 +89,12 @@ export const CATEGORIES = [
 // landmarks) is used as an anchor, but every entry stays `verified: false`
 // until it can be confirmed in-game. The UI shows a "TBC" tag for those so
 // visitors never mistake a placeholder for a real guide entry.
+//
+// `guide` (optional): longer location / walkthrough notes. Rows that have a
+// guide get an expand button in the checklist; rows without one stay compact.
+// Leave it out until there's something genuinely useful to say, then fill it in
+// after launch. Adding or editing a guide never affects saved progress, because
+// progress is keyed by `id` only.
 export const ITEMS = [
   // ---- Story Missions ------------------------------------------------------
   {
@@ -100,6 +106,8 @@ export const ITEMS = [
     difficulty: "Easy",
     note: "Jason and Lucia's robbery from the end of Trailer 1. Mission name TBC.",
     verified: false,
+    guide:
+      "Trailer 1 ends with Jason and Lucia robbing a convenience store, which makes this a likely early-story beat. On launch day this note will list the mission's real name, the trigger point on the map, and any choices that change the outcome.",
   },
   {
     id: "SM-002",
@@ -170,6 +178,8 @@ export const ITEMS = [
     difficulty: "Hard",
     note: "Ambrosia's sugar refinery is an official landmark. Mission link TBC.",
     verified: false,
+    guide:
+      "Rockstar's own regional overview puts the Allied Crystal sugar refinery at the center of Ambrosia. Large industrial landmarks like this usually host at least one story job. Expect the trigger to be marked once the region opens up.",
   },
 
   // ---- Collectibles --------------------------------------------------------
@@ -212,6 +222,8 @@ export const ITEMS = [
     difficulty: "Hard",
     note: "Placeholder. Expect water access only.",
     verified: false,
+    guide:
+      "Grassrivers is Leonida's mangrove wetland. Most of it is reachable only by water, so bring an airboat or small boat before you start searching. Exact coordinates will be added after launch.",
   },
   {
     id: "CL-005",
@@ -242,6 +254,8 @@ export const ITEMS = [
     difficulty: "Hard",
     note: "Placeholder. Off-road vehicle likely needed.",
     verified: false,
+    guide:
+      "Mount Kalaga is the northern national park, built around hunting, fishing, and off-road trails. Higher trail sections will likely need an off-road vehicle. Coordinates will be added after launch.",
   },
   {
     id: "CL-008",
@@ -314,6 +328,8 @@ export const ITEMS = [
     difficulty: "Medium",
     note: "Base jumping is a confirmed activity. Exact spots TBC.",
     verified: false,
+    guide:
+      "Base jumping is a confirmed activity in GTA 6. The ridge lines around Mount Kalaga are the most likely launch points. Look for marked jump spots once you reach the park.",
   },
 
   // ---- Vehicles ------------------------------------------------------------
@@ -326,6 +342,8 @@ export const ITEMS = [
     difficulty: "Easy",
     note: "Placeholder. Model name TBC.",
     verified: false,
+    guide:
+      "Airboats are the natural way across the Grassrivers wetlands. Check the boat ramps along the wetland edges first. The model name and a guaranteed spawn point will be confirmed after launch.",
   },
   {
     id: "VH-002",
@@ -346,6 +364,8 @@ export const ITEMS = [
     difficulty: "Easy",
     note: "Placeholder. Suited to the park's off-road trails.",
     verified: false,
+    guide:
+      "Off-road pickups suit Mount Kalaga's trail network. Ranger stations and trailheads are the first places worth checking. The model name and spawn point will be confirmed after launch.",
   },
   {
     id: "VH-004",
@@ -438,6 +458,8 @@ export const ITEMS = [
     difficulty: "Medium",
     note: "Placeholder.",
     verified: false,
+    guide:
+      "Mount Kalaga's hunting and fishing focus makes a cabin a likely property type, but this is unconfirmed. If it turns out to be a safehouse, expect it to unlock a fast-travel or save point in the north.",
   },
 ];
 

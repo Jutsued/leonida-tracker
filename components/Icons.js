@@ -58,6 +58,25 @@ export function IconClose(props) {
   );
 }
 
+// Counter-clockwise arrow for the Reset control.
+export function IconReset(props) {
+  return (
+    <Svg {...props}>
+      <path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3" />
+      <path d="M4.5 3.5v3.7h3.7" />
+    </Svg>
+  );
+}
+
+// Chevron for the expandable field-notes drawer. Rotated 180deg via CSS when open.
+export function IconChevronDown(props) {
+  return (
+    <Svg {...props}>
+      <path d="M6 9.5l6 6 6-6" />
+    </Svg>
+  );
+}
+
 // Brand mark: a survey-grid crosshair, nodding to nautical charts and plotting maps.
 export function IconMark(props) {
   return (

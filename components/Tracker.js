@@ -1,5 +1,5 @@
 // components/Tracker.js
-// The interactive part of the site: progress header, export/import, search,
+// The interactive part of the site: progress header, export/import/reset, search,
 // filters, and the checklist itself. Used by the home page (all categories) and
 // by each category page (pass `categorySlug` to show just that category).
 //
@@ -9,24 +9,44 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CATEGORIES, ITEMS, REGIONS, getRegionName } from "@/data/gta6Data";
 import { useProgress } from "@/lib/useProgress";
-import { CategoryIcon, IconClose, IconDownload, IconSearch, IconUpload } from "@/components/Icons";
+import {
+  CategoryIcon,
+  IconChevronDown,
+  IconClose,
+  IconDownload,
+  IconReset,
+  IconSearch,
+  IconUpload,
+} from "@/components/Icons";
 
 // One focus style reused everywhere, so every interactive element shows the
 // same teal ring for keyboard users (and nothing for mouse clicks).
 const FOCUS = "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal";
 
-// Desktop column widths for the checklist "table". Shared by the header row and
-// every item row so the columns always line up.
-const ROW_GRID = "md:grid-cols-[20px_64px_minmax(0,1fr)_128px_116px_64px]";
+// Shared look for the small header buttons (Export / Import / Reset).
+// justify-center + tighter px on phones so all three fit one even row (see below).
+const HEADER_BTN = `flex h-9 items-center justify-center gap-2 rounded-[2px] border px-2.5 font-display text-[13px] font-semibold uppercase tracking-[0.1em] transition-colors sm:px-3 ${FOCUS}`;
+
+// Column widths for the checklist "table". Shared by the header row and every
+// item row so the columns always line up.
+// Mobile: [checkbox | content | notes toggle]
+// Desktop: [checkbox | ID | entry | region | reward | difficulty | notes toggle]
+const ROW_GRID =
+  "grid-cols-[20px_minmax(0,1fr)_28px] md:grid-cols-[20px_64px_minmax(0,1fr)_128px_116px_64px_28px]";
 
 const STATUS_FILTERS = [
   { id: "all", label: "All" },
   { id: "completed", label: "Completed" },
   { id: "remaining", label: "Remaining" },
 ];
+
+// How long the "Confirm reset?" step stays armed before quietly cancelling itself.
+// Long enough to read and click, short enough that a forgotten armed button
+// can't be hit by accident minutes later.
+const RESET_TIMEOUT_MS = 6000;
 
 // Rounds DOWN to one decimal, so the header can only ever read 100.0%
 // when every single item is actually checked.
@@ -36,12 +56,15 @@ function formatPercent(doneCount, total) {
 }
 
 export default function Tracker({ categorySlug = null }) {
-  const { done, ready, toggle, replaceAll } = useProgress();
+  const { done, ready, toggle, replaceAll, reset } = useProgress();
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState("all");
   const [region, setRegion] = useState("all");
   const [notice, setNotice] = useState("");
+  const [confirmingReset, setConfirmingReset] = useState(false);
   const fileInputRef = useRef(null);
+  const resetButtonRef = useRef(null);
+  const cancelResetRef = useRef(null);
 
   // Which items this page is about: everything on the home page, one category elsewhere.
   const scopeItems = useMemo(
@@ -84,7 +107,9 @@ export default function Tracker({ categorySlug = null }) {
       if (region !== "all" && item.region !== region) return false;
       if (!q) return true;
 
-      const haystack = `${item.id} ${item.name} ${item.note} ${item.reward} ${getRegionName(item.region)}`.toLowerCase();
+      // Guide text is searchable too, so "airboat" finds rows whose notes mention it.
+      const haystack =
+        `${item.id} ${item.name} ${item.note} ${item.reward} ${item.guide || ""} ${getRegionName(item.region)}`.toLowerCase();
       return haystack.includes(q);
     });
   }, [scopeItems, done, query, status, region]);
@@ -103,6 +128,38 @@ export default function Tracker({ categorySlug = null }) {
     setQuery("");
     setStatus("all");
     setRegion("all");
+  }
+
+  // ---- Reset progress: two-step confirmation --------------------------------
+  // Step 1 "Reset" arms it. Step 2 "Confirm reset?" actually clears.
+  // Focus jumps to Cancel when armed, so a stray Enter/Space press cancels
+  // instead of wiping someone's 80% playthrough.
+  const cancelReset = useCallback(() => {
+    setConfirmingReset(false);
+    // Wait one frame for the Reset button to re-render before focusing it.
+    requestAnimationFrame(() => resetButtonRef.current?.focus());
+  }, []);
+
+  useEffect(() => {
+    if (!confirmingReset) return;
+    cancelResetRef.current?.focus();
+    const timer = setTimeout(() => setConfirmingReset(false), RESET_TIMEOUT_MS);
+    function onKey(e) {
+      if (e.key === "Escape") cancelReset();
+    }
+    window.addEventListener("keydown", onKey);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [confirmingReset, cancelReset]);
+
+  function confirmReset() {
+    const cleared = Object.keys(done).length;
+    reset();
+    setConfirmingReset(false);
+    setNotice(`Progress cleared (${cleared} entries).`);
+    requestAnimationFrame(() => resetButtonRef.current?.focus());
   }
 
   // ---- Backup: export -------------------------------------------------------
@@ -180,25 +237,68 @@ export default function Tracker({ categorySlug = null }) {
             </p>
           </div>
 
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={handleExport}
-              className={`flex h-9 items-center gap-2 rounded-[2px] border border-line px-3 font-display text-[13px] font-semibold uppercase tracking-[0.1em] text-ash transition-colors hover:border-ash/50 hover:text-bone ${FOCUS}`}
-            >
-              <IconDownload size={16} />
-              Export
-            </button>
-            {/* The real file input is hidden; this button forwards the click to it,
-                because native file inputs can't be styled to match the design. */}
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              className={`flex h-9 items-center gap-2 rounded-[2px] border border-line px-3 font-display text-[13px] font-semibold uppercase tracking-[0.1em] text-ash transition-colors hover:border-ash/50 hover:text-bone ${FOCUS}`}
-            >
-              <IconUpload size={16} />
-              Import
-            </button>
+          {/* On phones: a full-width 3-column grid, so Export / Import / Reset sit on ONE
+              row and the confirm pair replaces them in place. The row's height never
+              changes, so nothing below jumps when Reset is armed. Desktop: inline flex. */}
+          <div className="grid w-full grid-cols-3 gap-2 sm:flex sm:w-auto">
+            {confirmingReset ? (
+              // role="group" + label so screen readers announce what these two buttons decide.
+              <div
+                role="group"
+                aria-label="Confirm progress reset"
+                className="col-span-3 grid grid-cols-[minmax(0,1fr)_auto] gap-2 sm:flex"
+              >
+                <button
+                  type="button"
+                  onClick={confirmReset}
+                  className={`${HEADER_BTN} border-coral bg-coral/10 text-bone hover:bg-coral/20`}
+                >
+                  <IconReset size={16} className="text-coral" />
+                  Confirm reset?
+                </button>
+                <button
+                  ref={cancelResetRef}
+                  type="button"
+                  onClick={cancelReset}
+                  className={`${HEADER_BTN} border-line text-ash hover:border-ash/50 hover:text-bone`}
+                >
+                  Cancel
+                </button>
+              </div>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onClick={handleExport}
+                  className={`${HEADER_BTN} border-line text-ash hover:border-ash/50 hover:text-bone`}
+                >
+                  <IconDownload size={16} />
+                  Export
+                </button>
+                {/* The real file input is hidden; this button forwards the click to it,
+                    because native file inputs can't be styled to match the design. */}
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className={`${HEADER_BTN} border-line text-ash hover:border-ash/50 hover:text-bone`}
+                >
+                  <IconUpload size={16} />
+                  Import
+                </button>
+                {/* Visually quieter than Export/Import (no border until hover) because
+                    it's destructive and rarely needed. Disabled when there's nothing to clear. */}
+                <button
+                  ref={resetButtonRef}
+                  type="button"
+                  onClick={() => setConfirmingReset(true)}
+                  disabled={!ready || stats.totalDone === 0}
+                  className={`${HEADER_BTN} border-transparent text-ash hover:border-coral/60 hover:text-coral disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-transparent disabled:hover:text-ash`}
+                >
+                  <IconReset size={16} />
+                  Reset
+                </button>
+              </>
+            )}
             <input
               ref={fileInputRef}
               type="file"
@@ -226,7 +326,6 @@ export default function Tracker({ categorySlug = null }) {
         {/* Category breakdown. These are real links (not buttons) so Google can
             follow them to each category page, which helps those pages get indexed. */}
         <nav aria-label="Categories">
-          {/* gap-px over a bg-line background = perfect 1px dividers between cells, no double borders. */}
           {/* 5 categories in a 2-column grid leaves a hole, so the last cell spans both columns on mobile. */}
           <ul className="grid grid-cols-2 gap-px bg-line md:grid-cols-5 [&>li:last-child:nth-child(odd)]:col-span-2 md:[&>li:last-child:nth-child(odd)]:col-span-1">
             {CATEGORIES.map((cat) => {
@@ -299,12 +398,7 @@ export default function Tracker({ categorySlug = null }) {
 
           <span className="hidden h-8 w-px bg-line md:block" aria-hidden="true" />
 
-          {/* Scrolls sideways on phones instead of wrapping into a messy 3-line block. */}
-          <div
-            role="group"
-            aria-label="Filter by region"
-            className="no-scrollbar -mx-4 flex gap-1.5 overflow-x-auto px-4 md:mx-0 md:flex-wrap md:px-0"
-          >
+          <ScrollRow label="Filter by region">
             <FilterPill active={region === "all"} onClick={() => setRegion("all")}>
               All regions
             </FilterPill>
@@ -319,11 +413,11 @@ export default function Tracker({ categorySlug = null }) {
                 {r.name}
               </FilterPill>
             ))}
-          </div>
+          </ScrollRow>
         </div>
 
-        {/* Results count + status messages. aria-live announces imports/exports to screen readers.
-            Fixed h-5 so a message appearing doesn't push the list down. */}
+        {/* Results count + status messages. aria-live announces imports/exports/resets to
+            screen readers. Fixed h-5 so a message appearing doesn't push the list down. */}
         <div className="flex h-5 items-center justify-between gap-3 font-mono text-[11px] uppercase tracking-[0.1em] text-ash tabular-nums">
           <p>
             Showing <span className="text-bone">{visibleItems.length}</span> / {scopeItems.length}
@@ -347,6 +441,7 @@ export default function Tracker({ categorySlug = null }) {
           <span>Region</span>
           <span>Reward</span>
           <span>Diff.</span>
+          <span />
         </div>
 
         {groups.length === 0 ? (
@@ -395,6 +490,56 @@ export default function Tracker({ categorySlug = null }) {
 // Small building blocks
 // ---------------------------------------------------------------------------
 
+// Horizontal scroller for the region pills.
+// On phones the six regions don't fit, so the row scrolls sideways. A CSS mask
+// fades the edge where more pills are hidden, which is the "you can swipe" cue.
+// The fade is a mask (it makes pills transparent), not a painted color gradient,
+// so nothing new is drawn on the page. On desktop the row wraps instead and the
+// mask turns itself off because nothing overflows.
+function ScrollRow({ label, children }) {
+  const ref = useRef(null);
+  const [edges, setEdges] = useState({ left: false, right: false });
+
+  const measure = useCallback(() => {
+    const el = ref.current;
+    if (!el) return;
+    const maxScroll = el.scrollWidth - el.clientWidth;
+    // 4px tolerance so sub-pixel rounding doesn't leave a ghost fade at the end.
+    setEdges({ left: el.scrollLeft > 4, right: el.scrollLeft < maxScroll - 4 });
+  }, []);
+
+  useEffect(() => {
+    measure();
+    // Re-measure on rotation / resize, since that changes whether the row overflows.
+    const observer = new ResizeObserver(measure);
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, [measure]);
+
+  // Build the mask only for the edges that actually hide something.
+  const mask =
+    edges.left || edges.right
+      ? `linear-gradient(to right, ${edges.left ? "transparent" : "#000"} 0, #000 28px, #000 calc(100% - 44px), ${
+          edges.right ? "transparent" : "#000"
+        } 100%)`
+      : undefined;
+
+  return (
+    <div
+      ref={ref}
+      role="group"
+      aria-label={label}
+      onScroll={measure}
+      style={mask ? { maskImage: mask, WebkitMaskImage: mask } : undefined}
+      // -mx-4 + px-4 lets the row run edge-to-edge on phones (matching the page gutter),
+      // and pr-10 leaves room so the last pill can scroll fully clear of the fade.
+      className="no-scrollbar -mx-4 flex snap-x gap-1.5 overflow-x-auto scroll-px-4 px-4 pr-10 md:mx-0 md:flex-wrap md:overflow-visible md:px-0 md:pr-0"
+    >
+      {children}
+    </div>
+  );
+}
+
 function FilterPill({ active, onClick, count, title, children }) {
   return (
     <button
@@ -403,7 +548,7 @@ function FilterPill({ active, onClick, count, title, children }) {
       aria-pressed={active}
       onClick={onClick}
       title={title}
-      className={`flex h-8 shrink-0 items-center gap-2 rounded-[2px] border px-3 font-display text-[13px] font-semibold uppercase tracking-[0.08em] transition-colors ${FOCUS} ${
+      className={`flex h-8 shrink-0 snap-start items-center gap-2 rounded-[2px] border px-3 font-display text-[13px] font-semibold uppercase tracking-[0.08em] transition-colors ${FOCUS} ${
         active ? "border-coral bg-coral/10 text-bone" : "border-line text-ash hover:border-ash/50 hover:text-bone"
       }`}
     >
@@ -414,15 +559,20 @@ function FilterPill({ active, onClick, count, title, children }) {
 }
 
 function ChecklistRow({ item, checked, onToggle }) {
+  const [open, setOpen] = useState(false);
   const nameId = `${item.id}-name`;
+  const guideId = `${item.id}-guide`;
   const regionName = getRegionName(item.region);
+  const hasGuide = Boolean(item.guide);
 
   return (
     <li
-      className={`grid grid-cols-[20px_minmax(0,1fr)] items-start gap-x-3 border-b border-line px-3 py-3 transition-colors last:border-b-0 md:items-center md:py-2.5 ${ROW_GRID} ${
+      className={`grid items-start gap-x-3 border-b border-line px-3 py-3 transition-colors last:border-b-0 md:items-center md:py-2.5 ${ROW_GRID} ${
         checked ? "bg-carbon/40" : "hover:bg-bone/[0.02]"
       }`}
     >
+      {/* The checkbox ONLY toggles completion. The notes drawer has its own button,
+          so opening notes can never accidentally tick an item off. */}
       <Checkbox checked={checked} onToggle={() => onToggle(item.id)} labelledBy={nameId} />
 
       {/* Desktop-only columns use `hidden md:block`. On mobile the same info is
@@ -455,7 +605,7 @@ function ChecklistRow({ item, checked, onToggle }) {
           <Tag>{regionName}</Tag>
           <Tag>{item.reward}</Tag>
           <Tag>
-            <DifficultyMeter level={item.difficulty} />
+            <DifficultyMeter level={item.difficulty} showLabel />
           </Tag>
         </div>
       </div>
@@ -465,6 +615,38 @@ function ChecklistRow({ item, checked, onToggle }) {
       <span className="hidden md:block">
         <DifficultyMeter level={item.difficulty} />
       </span>
+
+      {/* Notes toggle. Rows without a guide get an empty cell so the grid columns stay aligned. */}
+      {hasGuide ? (
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          aria-expanded={open}
+          aria-controls={guideId}
+          aria-label={`${open ? "Hide" : "Show"} field notes for ${item.name}`}
+          title={open ? "Hide field notes" : "Show field notes"}
+          className={`-mt-1 grid h-7 w-7 place-items-center rounded-[2px] border transition-colors md:mt-0 ${FOCUS} ${
+            open ? "border-teal/60 text-teal" : "border-line text-ash hover:border-ash/50 hover:text-bone"
+          }`}
+        >
+          <IconChevronDown size={14} className={`transition-transform duration-150 ${open ? "rotate-180" : ""}`} />
+        </button>
+      ) : (
+        <span aria-hidden="true" />
+      )}
+
+      {/* Drawer. col-span-full makes it a full-width line under the row; the left
+          padding lines its text up with the entry name column on each breakpoint. */}
+      {hasGuide && open && (
+        <div id={guideId} className="col-span-full mt-3 pl-8 md:mt-2.5 md:pl-[108px]">
+          <div className="border-l-2 border-coral/70 bg-carbon/60 px-3 py-2.5">
+            <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-coral">
+              Field notes{!item.verified && <span className="text-ash"> · pre-launch</span>}
+            </p>
+            <p className="mt-1 max-w-[70ch] text-[13px] leading-relaxed text-bone/85">{item.guide}</p>
+          </div>
+        </div>
+      )}
     </li>
   );
 }
@@ -499,7 +681,7 @@ function Checkbox({ checked, onToggle, labelledBy }) {
 function Tag({ mono = false, children }) {
   return (
     <span
-      className={`inline-flex h-6 items-center rounded-[2px] border border-line px-1.5 text-[11px] text-ash ${
+      className={`inline-flex h-6 items-center gap-1.5 rounded-[2px] border border-line px-1.5 text-[11px] text-ash ${
         mono ? "font-mono tabular-nums" : "font-display font-semibold uppercase tracking-[0.06em]"
       }`}
     >
@@ -508,16 +690,27 @@ function Tag({ mono = false, children }) {
   );
 }
 
-// Three little bars instead of colored "Easy/Hard" badges: reads faster in a
-// dense table and keeps accent colors rare. The sr-only text keeps it accessible.
-function DifficultyMeter({ level }) {
+// Three bars instead of colored "Easy/Hard" badges: reads faster in a dense table
+// and keeps accent colors rare.
+// Unfilled bars are a solid #2E323D block with a 1px #3D4250 edge. The old
+// version used the border color (#262932) as fill, which almost vanished on the
+// #14161B panel, so 1/3 and 3/3 were hard to tell apart.
+function DifficultyMeter({ level, showLabel = false }) {
   const filled = { Easy: 1, Medium: 2, Hard: 3 }[level] || 0;
   return (
-    <span className="inline-flex items-center gap-[3px]" title={level}>
-      {[1, 2, 3].map((n) => (
-        <span key={n} aria-hidden="true" className={`block h-2.5 w-1.5 ${n <= filled ? "bg-bone/80" : "bg-line"}`} />
-      ))}
-      <span className="sr-only">Difficulty: {level}</span>
+    <span className="inline-flex items-center gap-1.5" title={`Difficulty: ${level}`}>
+      <span className="inline-flex items-end gap-[3px]" aria-hidden="true">
+        {[1, 2, 3].map((n) => (
+          <span
+            key={n}
+            className={`block h-3 w-[7px] border ${
+              n <= filled ? "border-bone/90 bg-bone/90" : "border-[#3D4250] bg-[#2E323D]"
+            }`}
+          />
+        ))}
+      </span>
+      {/* Mobile tags spell the level out; desktop relies on the column header + tooltip. */}
+      {showLabel ? <span>{level}</span> : <span className="sr-only">Difficulty: {level}</span>}
     </span>
   );
 }
