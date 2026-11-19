@@ -78,7 +78,10 @@ function buildJsonLd(cat, items) {
             "@type": "Thing",
             identifier: item.id,
             name: item.name,
-            description: `${getRegionName(item.region)} · ${item.difficulty}${item.note ? ` · ${item.note}` : ""}`,
+            // Only include the parts we actually know, joined with " · ".
+            description: [item.region && getRegionName(item.region), item.difficulty, item.note]
+              .filter(Boolean)
+              .join(" · "),
           },
         })),
       },

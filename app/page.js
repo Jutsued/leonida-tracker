@@ -60,6 +60,21 @@ const jsonLd = {
   ],
 };
 
+// Launch status for the notice above the tracker. A category counts as verified
+// only when every one of its entries is.
+const verifiedCount = ITEMS.filter((item) => item.verified).length;
+const verifiedCategories = CATEGORIES.filter((cat) =>
+  ITEMS.filter((item) => item.category === cat.slug).every((item) => item.verified)
+);
+const pendingCategories = CATEGORIES.filter((cat) => !verifiedCategories.includes(cat));
+
+// "A", "A and B", "A, B, and C"
+function listNames(cats) {
+  const names = cats.map((cat) => cat.name);
+  if (names.length <= 2) return names.join(" and ");
+  return `${names.slice(0, -1).join(", ")}, and ${names.at(-1)}`;
+}
+
 export default function HomePage() {
   return (
     <>
@@ -82,14 +97,26 @@ export default function HomePage() {
         </p>
       </div>
 
-      {/* Honest pre-launch notice: most entries are placeholders until the game ships. */}
-      <p className="mb-4 flex items-start gap-2 border-l-2 border-coral bg-panel px-3 py-2 text-[13px] leading-snug text-ash">
-        <span className="shrink-0 whitespace-nowrap font-mono text-[11px] uppercase tracking-[0.1em] text-coral">Pre-launch</span>
-        <span>
-          Regions are confirmed by Rockstar. Entries tagged <span className="font-mono text-bone">TBC</span> are
-          placeholders and will be replaced with verified data after November 19.
-        </span>
-      </p>
+      {/* Data-status notice, computed from the data at build time so it can't go stale:
+          it names which categories are fully verified and which still hold TBC
+          placeholders. Once everything is verified, it disappears on its own. */}
+      {pendingCategories.length > 0 && (
+        <p className="mb-4 flex items-start gap-2 border-l-2 border-teal bg-panel px-3 py-2 text-[13px] leading-snug text-ash">
+          <span className="shrink-0 whitespace-nowrap font-mono text-[11px] uppercase tracking-[0.1em] text-teal">
+            Launch
+          </span>
+          <span>
+            {verifiedCategories.length > 0 && (
+              <>
+                <span className="text-bone">{listNames(verifiedCategories)}</span> verified:{" "}
+                <span className="font-mono tabular-nums text-bone">{verifiedCount}</span> of {ITEMS.length} entries.{" "}
+              </>
+            )}
+            {listNames(pendingCategories)} still use pre-launch placeholders tagged{" "}
+            <span className="font-mono text-bone">TBC</span>, replaced as launch data is confirmed.
+          </span>
+        </p>
+      )}
 
       <Tracker />
     </>

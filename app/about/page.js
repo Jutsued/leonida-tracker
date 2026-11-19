@@ -88,18 +88,19 @@ export default function AboutPage() {
 
         <InfoSection index="03" id="verification" title="How entries are verified">
           <p>
-            GTA VI releases on November 19, 2026. Until then, only the regions and a handful of locations,
-            characters, and activities have been officially revealed by Rockstar Games.
+            GTA VI released on November 19, 2026. The tracker was built before launch, so it started with
+            placeholders based on what Rockstar had revealed, and is being replaced with confirmed data category by
+            category.
           </p>
           <ul>
             <li>
-              Entries built on unconfirmed details carry a <code>TBC</code> tag and are clearly labelled as
-              pre-launch placeholders. Right now {verifiedCount === 0 ? "none" : verifiedCount} of {ITEMS.length}{" "}
-              are verified.
+              Right now <strong>{verifiedCount}</strong> of {ITEMS.length} entries are verified. Anything not yet
+              confirmed carries a <code>TBC</code> tag.
             </li>
             <li>
-              After launch, each entry is checked in-game: its name, region, reward, and location notes are corrected,
-              and the <code>TBC</code> tag is removed only once it has been confirmed.
+              An entry is marked verified only when at least two independent sources agree on it (in-game checks and
+              published launch guides). Details nobody has confirmed, like a region or a difficulty rating, are left
+              blank (shown as &quot;—&quot;) rather than guessed.
             </li>
             <li>
               Rows with field notes (the expand arrow on the right of a row) get coordinates and walkthrough tips as

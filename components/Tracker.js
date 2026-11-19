@@ -602,11 +602,15 @@ function ChecklistRow({ item, checked, onToggle }) {
         {/* Mobile metadata tags */}
         <div className="mt-2 flex flex-wrap gap-1.5 md:hidden">
           <Tag mono>{item.id}</Tag>
-          <Tag>{regionName}</Tag>
+          {/* Region and difficulty tags only appear when the data actually has them,
+              so phones don't show a row of empty "—" chips for every story mission. */}
+          {item.region && <Tag>{regionName}</Tag>}
           <Tag>{item.reward}</Tag>
-          <Tag>
-            <DifficultyMeter level={item.difficulty} showLabel />
-          </Tag>
+          {item.difficulty && (
+            <Tag>
+              <DifficultyMeter level={item.difficulty} showLabel />
+            </Tag>
+          )}
         </div>
       </div>
 
@@ -696,6 +700,17 @@ function Tag({ mono = false, children }) {
 // version used the border color (#262932) as fill, which almost vanished on the
 // #14161B panel, so 1/3 and 3/3 were hard to tell apart.
 function DifficultyMeter({ level, showLabel = false }) {
+  // No rating in the data yet (e.g. story missions at launch): show a quiet dash
+  // instead of three empty bars, which would read as "rated 0/3".
+  if (!level) {
+    return (
+      <span className="text-[13px] text-ash/70" title="Difficulty not rated yet">
+        <span aria-hidden="true">—</span>
+        <span className="sr-only">Difficulty not rated yet</span>
+      </span>
+    );
+  }
+
   const filled = { Easy: 1, Medium: 2, Hard: 3 }[level] || 0;
   return (
     <span className="inline-flex items-center gap-1.5" title={`Difficulty: ${level}`}>
