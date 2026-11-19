@@ -46,9 +46,11 @@ export const CATEGORIES = [
     short: "Collect.",
     prefix: "CL",
     icon: "collectible",
-    seoTitle: "GTA 6 Collectibles Locations & Checklist",
+    // Updated at launch to name what the game actually has: 18 card sets
+    // (480 cards) plus WAiNK scans and exploration finds.
+    seoTitle: "GTA 6 Collectibles Checklist: All 18 Card Sets & WAiNK Scans",
     seoDescription:
-      "Every GTA 6 collectible by region, from Vice City to Mount Kalaga. Tick them off as you go and keep your progress saved locally.",
+      "All 18 GTA 6 collectible card sets (480 cards), WAiNK landmarks, curiosities, sculptures, and more. Free checklist with progress saved in your browser.",
   },
   {
     slug: "stunt-jumps",
@@ -941,89 +943,308 @@ export const ITEMS = [
   },
 
   // ---- Collectibles --------------------------------------------------------
+  // Verified on launch day (Nov 19, 2026) by cross-checking PowerPyx (Collectible
+  // Guide progress database + All Collectible Card Sets), Push Square (GTA 6
+  // guide hub + Collectible Card Locations), The Big Lead, and All Things How.
+  // Only names / counts at least two of them agree on are used.
+  // - One entry per card SET, not per card: both card guides list 18 sets / 480
+  //   cards, but individual card names aren't published by two sources yet. A
+  //   480-row list built from one guide would break our verification rule.
+  // - CL-001..CL-008 used to be generic pre-launch placeholders. They are reused
+  //   for the first 8 card sets (IDs are storage keys, and nobody could have
+  //   genuinely completed a placeholder), and new entries continue from CL-009.
+  // - region is null everywhere: guides place individual cards all over the map,
+  //   so a set has no single region. "Vice City" etc. in a set name is the team,
+  //   not where the cards are.
+  // - Counts are only written into a note when two sources agree on the number.
+
+  // Collectible card sets (18 sets, 480 cards)
   {
     id: "CL-001",
     category: "collectibles",
-    name: "Hidden collectible: beachfront",
-    region: "vice-city",
-    reward: "Completion %",
-    difficulty: "Easy",
-    note: "Placeholder. Collectible type unknown until launch.",
-    verified: false,
+    name: "Vice City Flamingos card set",
+    region: null,
+    reward: "Pawn shop cash",
+    note: "24 cards · Collectible Cards",
+    verified: true,
+    guide:
+      "Pick up every card in the set; each one is logged under Progress > Collections in the pause menu. Cards can be sold at pawn shops around Leonida, and a sold card stays logged, so selling never costs you progress.",
   },
   {
     id: "CL-002",
     category: "collectibles",
-    name: "Hidden collectible: downtown rooftop",
-    region: "vice-city",
-    reward: "Completion %",
-    difficulty: "Medium",
-    note: "Placeholder.",
-    verified: false,
+    name: "Vice City Narcos card set",
+    region: null,
+    reward: "Pawn shop cash",
+    note: "24 cards · Collectible Cards",
+    verified: true,
+    guide:
+      "Pick up every card in the set; each one is logged under Progress > Collections in the pause menu. Cards can be sold at pawn shops around Leonida, and a sold card stays logged, so selling never costs you progress.",
   },
   {
     id: "CL-003",
     category: "collectibles",
-    name: "Hidden collectible: overseas highway",
-    region: "leonida-keys",
-    reward: "Completion %",
-    difficulty: "Medium",
-    note: "Placeholder.",
-    verified: false,
+    name: "Vice City Manatees card set",
+    region: null,
+    reward: "Pawn shop cash",
+    note: "24 cards · Collectible Cards",
+    verified: true,
+    guide:
+      "Pick up every card in the set; each one is logged under Progress > Collections in the pause menu. Cards can be sold at pawn shops around Leonida, and a sold card stays logged, so selling never costs you progress.",
   },
   {
     id: "CL-004",
     category: "collectibles",
-    name: "Hidden collectible: airboat channel",
-    region: "grassrivers",
-    reward: "Completion %",
-    difficulty: "Hard",
-    note: "Placeholder. Expect water access only.",
-    verified: false,
+    name: "Vice City Club de Fútbol card set",
+    region: null,
+    reward: "Pawn shop cash",
+    note: "30 cards · Collectible Cards",
+    verified: true,
     guide:
-      "Grassrivers is Leonida's mangrove wetland. Most of it is reachable only by water, so bring an airboat or small boat before you start searching. Exact coordinates will be added after launch.",
+      "Pick up every card in the set; each one is logged under Progress > Collections in the pause menu. Cards can be sold at pawn shops around Leonida, and a sold card stays logged, so selling never costs you progress.",
   },
   {
     id: "CL-005",
     category: "collectibles",
-    name: "Hidden collectible: dockyards",
-    region: "port-gellhorn",
-    reward: "Completion %",
-    difficulty: "Easy",
-    note: "Placeholder.",
-    verified: false,
+    name: "Liberty City Swingers card set",
+    region: null,
+    reward: "Pawn shop cash",
+    note: "24 cards · Collectible Cards",
+    verified: true,
+    guide:
+      "Pick up every card in the set; each one is logged under Progress > Collections in the pause menu. Cards can be sold at pawn shops around Leonida, and a sold card stays logged, so selling never costs you progress.",
   },
   {
     id: "CL-006",
     category: "collectibles",
-    name: "Hidden collectible: refinery yard",
-    region: "ambrosia",
-    reward: "Completion %",
-    difficulty: "Medium",
-    note: "Placeholder.",
-    verified: false,
+    name: "Liberty City Penetrators card set",
+    region: null,
+    reward: "Pawn shop cash",
+    note: "24 cards · Collectible Cards",
+    verified: true,
+    guide:
+      "Pick up every card in the set; each one is logged under Progress > Collections in the pause menu. Cards can be sold at pawn shops around Leonida, and a sold card stays logged, so selling never costs you progress.",
   },
   {
     id: "CL-007",
     category: "collectibles",
-    name: "Hidden collectible: summit trail",
-    region: "mount-kalaga",
-    reward: "Completion %",
-    difficulty: "Hard",
-    note: "Placeholder. Off-road vehicle likely needed.",
-    verified: false,
+    name: "Liberty City Wrath card set",
+    region: null,
+    reward: "Pawn shop cash",
+    note: "24 cards · Collectible Cards",
+    verified: true,
     guide:
-      "Mount Kalaga is the northern national park, built around hunting, fishing, and off-road trails. Higher trail sections will likely need an off-road vehicle. Coordinates will be added after launch.",
+      "Pick up every card in the set; each one is logged under Progress > Collections in the pause menu. Cards can be sold at pawn shops around Leonida, and a sold card stays logged, so selling never costs you progress.",
   },
   {
     id: "CL-008",
     category: "collectibles",
-    name: "Hidden collectible: fishing pier",
-    region: "mount-kalaga",
-    reward: "Completion %",
-    difficulty: "Easy",
-    note: "Placeholder.",
-    verified: false,
+    name: "Los Santos Corkers card set",
+    region: null,
+    reward: "Pawn shop cash",
+    note: "24 cards · Collectible Cards",
+    verified: true,
+    guide:
+      "Pick up every card in the set; each one is logged under Progress > Collections in the pause menu. Cards can be sold at pawn shops around Leonida, and a sold card stays logged, so selling never costs you progress.",
+  },
+  {
+    id: "CL-009",
+    category: "collectibles",
+    name: "Los Santos Panic card set",
+    region: null,
+    reward: "Pawn shop cash",
+    note: "24 cards · Collectible Cards",
+    verified: true,
+    guide:
+      "Pick up every card in the set; each one is logged under Progress > Collections in the pause menu. Cards can be sold at pawn shops around Leonida, and a sold card stays logged, so selling never costs you progress.",
+  },
+  {
+    id: "CL-010",
+    category: "collectibles",
+    name: "Los Santos Pounders card set",
+    region: null,
+    reward: "Pawn shop cash",
+    note: "24 cards · Collectible Cards",
+    verified: true,
+    guide:
+      "Pick up every card in the set; each one is logged under Progress > Collections in the pause menu. Cards can be sold at pawn shops around Leonida, and a sold card stays logged, so selling never costs you progress.",
+  },
+  {
+    id: "CL-011",
+    category: "collectibles",
+    name: "Backyard Wrestling card set",
+    region: null,
+    reward: "Pawn shop cash",
+    note: "12 cards · Collectible Cards",
+    verified: true,
+    guide:
+      "Pick up every card in the set; each one is logged under Progress > Collections in the pause menu. Cards can be sold at pawn shops around Leonida, and a sold card stays logged, so selling never costs you progress.",
+  },
+  {
+    id: "CL-012",
+    category: "collectibles",
+    name: "America's Next Top Hooker card set",
+    region: null,
+    reward: "Pawn shop cash",
+    note: "24 cards · Collectible Cards",
+    verified: true,
+    guide:
+      "Pick up every card in the set; each one is logged under Progress > Collections in the pause menu. Cards can be sold at pawn shops around Leonida, and a sold card stays logged, so selling never costs you progress.",
+  },
+  {
+    id: "CL-013",
+    category: "collectibles",
+    name: "Delights Dancers card set",
+    region: null,
+    reward: "Pawn shop cash",
+    note: "18 cards · Collectible Cards",
+    verified: true,
+    guide:
+      "Pick up every card in the set; each one is logged under Progress > Collections in the pause menu. Cards can be sold at pawn shops around Leonida, and a sold card stays logged, so selling never costs you progress.",
+  },
+  {
+    id: "CL-014",
+    category: "collectibles",
+    name: "Jack of Hearts Dancers card set",
+    region: null,
+    reward: "Pawn shop cash",
+    note: "36 cards · Collectible Cards",
+    verified: true,
+    guide:
+      "Pick up every card in the set; each one is logged under Progress > Collections in the pause menu. Cards can be sold at pawn shops around Leonida, and a sold card stays logged, so selling never costs you progress.",
+  },
+  {
+    id: "CL-015",
+    category: "collectibles",
+    name: "Nine1Nine Dancers card set",
+    region: null,
+    reward: "Pawn shop cash",
+    note: "36 cards · Collectible Cards",
+    verified: true,
+    guide:
+      "Pick up every card in the set; each one is logged under Progress > Collections in the pause menu. Cards can be sold at pawn shops around Leonida, and a sold card stays logged, so selling never costs you progress.",
+  },
+  {
+    id: "CL-016",
+    category: "collectibles",
+    name: "The Legends of Ratface card set",
+    region: null,
+    reward: "Pawn shop cash",
+    note: "36 cards · Collectible Cards",
+    verified: true,
+    guide:
+      "Pick up every card in the set; each one is logged under Progress > Collections in the pause menu. Cards can be sold at pawn shops around Leonida, and a sold card stays logged, so selling never costs you progress.",
+  },
+  {
+    id: "CL-017",
+    category: "collectibles",
+    name: "Right Wing: America's Hero card set",
+    region: null,
+    reward: "Pawn shop cash",
+    note: "36 cards · Collectible Cards",
+    verified: true,
+    guide:
+      "Pick up every card in the set; each one is logged under Progress > Collections in the pause menu. Cards can be sold at pawn shops around Leonida, and a sold card stays logged, so selling never costs you progress.",
+  },
+  {
+    id: "CL-018",
+    category: "collectibles",
+    name: "Ed Comics Universe card set",
+    region: null,
+    reward: "Pawn shop cash",
+    note: "36 cards · Collectible Cards",
+    verified: true,
+    guide:
+      "Pick up every card in the set; each one is logged under Progress > Collections in the pause menu. Cards can be sold at pawn shops around Leonida, and a sold card stays logged, so selling never costs you progress.",
+  },
+
+  // Other collection types (one entry per type)
+  {
+    id: "CL-019",
+    category: "collectibles",
+    name: "WAiNK Landmarks",
+    region: null,
+    reward: "Collection log",
+    note: "31 to scan · WAiNK",
+    verified: true,
+    guide:
+      "These are scanned, not picked up. Your count shows under Progress > Collections in the pause menu.",
+  },
+  {
+    id: "CL-020",
+    category: "collectibles",
+    name: "WAiNK Curiosities",
+    region: null,
+    reward: "Collection log",
+    note: "35 to scan · WAiNK",
+    verified: true,
+    guide:
+      "These are scanned, not picked up. Your count shows under Progress > Collections in the pause menu.",
+  },
+  {
+    id: "CL-021",
+    category: "collectibles",
+    name: "WAiNK Sculptures",
+    region: null,
+    reward: "Collection log",
+    note: "23 to scan · WAiNK",
+    verified: true,
+    guide:
+      "These are scanned, not picked up. Your count shows under Progress > Collections in the pause menu.",
+  },
+  {
+    id: "CL-022",
+    category: "collectibles",
+    name: "No Flusher Tags",
+    region: null,
+    reward: "Collection log",
+    note: "WAiNK · Count not yet confirmed by two guides",
+    verified: true,
+  },
+  {
+    id: "CL-023",
+    category: "collectibles",
+    name: "Underwater Discoveries",
+    region: null,
+    reward: "Collection log",
+    note: "Exploration · Count not yet confirmed by two guides",
+    verified: true,
+  },
+  {
+    id: "CL-024",
+    category: "collectibles",
+    name: "Magazines, Books & Comics",
+    region: null,
+    reward: "Collection log",
+    note: "Exploration · Count not yet confirmed by two guides",
+    verified: true,
+  },
+  {
+    id: "CL-025",
+    category: "collectibles",
+    name: "Meditation Spots",
+    region: null,
+    reward: "Collection log",
+    note: "Exploration · Count not yet confirmed by two guides",
+    verified: true,
+  },
+  {
+    id: "CL-026",
+    category: "collectibles",
+    name: "Cocaine Flamingos",
+    region: null,
+    reward: "Collection log",
+    note: "Count not yet confirmed by two guides",
+    verified: true,
+  },
+  {
+    id: "CL-027",
+    category: "collectibles",
+    name: "Styles",
+    region: null,
+    reward: "Collection log",
+    note: "Makeup, hair, tattoos and more",
+    verified: true,
   },
 
   // ---- Stunt Jumps ---------------------------------------------------------
